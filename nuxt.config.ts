@@ -5,7 +5,9 @@ export default defineNuxtConfig({
     '@nuxthub/core',
     '@nuxt/ui',
     'nuxt-auth-utils',
-    '@nuxt/eslint'
+    '@nuxt/eslint',
+    '@nuxtjs/tailwindcss',
+    '@nuxt/icon'
   ],
   hub: {
     database: true
@@ -15,11 +17,15 @@ export default defineNuxtConfig({
     config: {
       stylistic: {
         quotes: 'single',
-        commaDangle: 'never'
+        commaDangle: 'never',
+        braceStyle: '1tbs'
       }
     }
   },
   devtools: {
     enabled: true
+  },
+  tailwindcss: {
+    editorSupport: true
   }
 })

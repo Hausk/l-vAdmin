@@ -19,9 +19,9 @@ useHead({
 
 useSeoMeta({
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  title: 'Atidone',
+  title: 'Dashboard - Libre & Vivant',
   description:
-    'A Nuxt demo hosted with edge-side rendering, authentication and queyring a Cloudflare D1 database',
+    'Partie Administration du même site vitrine.',
   ogImage: '/social-image.png',
   twitterImage: '/social-image.png',
   twitterCard: 'summary_large_image'
@@ -29,20 +29,24 @@ useSeoMeta({
 </script>
 
 <template>
-  <UContainer class="min-h-screen flex flex-col justify-center">
-    <div class="mb-2 text-right">
-      <UButton
-        square
-        variant="ghost"
-        color="black"
-        :icon="$colorMode.preference === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
-        @click="toggleColorMode"
-      />
-    </div>
+  <SideBar />
+  <div class="md:ml-[22rem]">
+    <Navbar />
+    <UContainer class="min-h-screen flex flex-col justify-center">
+      <div class="mb-2 text-right">
+        <UButton
+          square
+          variant="ghost"
+          color="black"
+          :icon="$colorMode.preference === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+          @click="toggleColorMode"
+        />
+      </div>
 
-    <NuxtPage />
-  </UContainer>
-  <UNotifications />
+      <NuxtPage />
+    </UContainer>
+    <UNotifications />
+  </div>
 </template>
 
 <style lang="postcss">
