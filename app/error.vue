@@ -27,8 +27,8 @@ useHead({
         <p class="text-base font-semibold text-primary">
           {{ error.statusCode }}
         </p>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-          Page non trouvée : {{ error.url }}
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl text-nowrap">
+          La page introuvable
         </h2>
         <p class="mt-6 text-base/7 text-gray-500 dark:text-gray-400 text-center">
           Cette page n'est pas celle que tu recherches

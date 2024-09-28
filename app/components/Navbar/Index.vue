@@ -1,24 +1,7 @@
 <script setup>
-import { defineEmits, ref, onMounted } from 'vue'
+import { defineEmits, ref } from 'vue'
 
 const emit = defineEmits(['toggle-sidebar'])
-
-const toggleDarkMode = () => {
-  const element = document.querySelector('html')
-  element.classList.toggle('dark')
-
-  // Enregistrer le mode sombre dans localStorage
-  const isDarkMode = element.classList.contains('dark')
-  localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false')
-}
-
-// Vérifier et appliquer le mode sombre lors du chargement de la page
-onMounted(() => {
-  const savedDarkMode = localStorage.getItem('darkMode')
-  if (savedDarkMode === 'true') {
-    document.querySelector('html').classList.add('dark')
-  }
-})
 
 const isSidebarOpen = ref(true)
 const toggleSidebar = () => {
@@ -27,7 +10,7 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-  <nav class="w-full flex justify-between">
+  <nav class="w-full flex justify-between h-16 bg-red-300">
     <Button
       class="mr-4 hover:bg-red-400 hidden md:flex"
       text
@@ -42,11 +25,5 @@ const toggleSidebar = () => {
     </Button>
 
     <NavbarMobileMenu />
-
-    <Button
-      label="Toggle Dark Mode"
-      class="my-auto"
-      @click="toggleDarkMode()"
-    />
   </nav>
 </template>

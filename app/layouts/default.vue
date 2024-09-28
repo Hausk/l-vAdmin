@@ -1,10 +1,19 @@
 <script setup>
 const { loggedIn } = useUserSession()
+const colorMode = useColorMode()
+
+definePageMeta({
+  middleware: 'auth'
+})
 watch(loggedIn, () => {
   if (!loggedIn.value) {
     navigateTo('/login')
   }
 })
+
+function toggleColorMode() {
+  colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark'
+}
 
 useHead({
   htmlAttrs: { lang: 'en' },
@@ -23,11 +32,13 @@ useSeoMeta({
 </script>
 
 <template>
-  <NuxtLayout />
+  <div
+    class="w-screen h-screen overflow-hidden"
+  >
+    <SideBar />
+    <div class="md:ml-[18rem] h-screen overflow-y-scroll overflow-x-hidden">
+      <NuxtPage />
+      <UNotifications />
+    </div>
+  </div>
 </template>
-
-<style lang="postcss">
-body {
-  @apply font-sans text-gray-950 bg-gray-50 dark:bg-gray-950 dark:text-gray-50;
-}
-</style>
