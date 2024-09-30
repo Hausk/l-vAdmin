@@ -4,6 +4,7 @@ export default defineAppConfig({
     container: {
       constrained: 'max-w-2xl'
     },
+    gray: 'cool',
     card: {
       header: {
         base: 'flex flex-wrap items-center justify-between'

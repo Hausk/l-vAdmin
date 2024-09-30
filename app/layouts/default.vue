@@ -1,18 +1,8 @@
 <script setup>
 const { loggedIn } = useUserSession()
-const colorMode = useColorMode()
 
-definePageMeta({
-  middleware: 'auth'
-})
-watch(loggedIn, () => {
-  if (!loggedIn.value) {
-    navigateTo('/login')
-  }
-})
-
-function toggleColorMode() {
-  colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark'
+if (!loggedIn.value) {
+  navigateTo('/login')
 }
 
 useHead({
