@@ -9,7 +9,6 @@ useHead({
   htmlAttrs: { lang: 'en' },
   link: [{ rel: 'icon', href: '/icon.png' }]
 })
-
 useSeoMeta({
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   title: 'Dashboard - Libre & Vivant',

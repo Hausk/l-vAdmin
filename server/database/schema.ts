@@ -30,6 +30,7 @@ export const images = pgTable('images', {
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   name: text('name').unique().notNull(),
+  slug: text('slug').unique().notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   pinnedImageId: integer('pinned_image_id')
 })
