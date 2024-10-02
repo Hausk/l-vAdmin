@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
 interface Image {
@@ -7,28 +7,19 @@ interface Image {
   name: string
   url: string
   visible: boolean
+  file: File
 }
 
 const images = ref<Image[]>([])
 const isDragging = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+const uploadProgress = ref(0)
+const isUploading = ref(false)
+const isCategoryNameAvailable = ref(true)
 const emit = defineEmits(['close'])
 
 const state = reactive({
-  name: undefined,
-  email: undefined
-})
-
-const STORAGE_KEY = 'photobox_images'
-
-onMounted(() => {
-  const storedImages = localStorage.getItem(STORAGE_KEY)
-  if (storedImages) {
-    images.value = JSON.parse(storedImages)
-  }
-  images.value.forEach((image) => {
-    image.visible = true
-  })
+  categoryName: ''
 })
 
 const handleFiles = (files: File[]) => {
@@ -37,13 +28,13 @@ const handleFiles = (files: File[]) => {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       name: file.name,
       url: URL.createObjectURL(file),
-      visible: false
+      visible: false,
+      file: file
     }))
 
   if (newImages.length > 0) {
     images.value.push(...newImages)
     animateImages()
-    saveImagesToStorage()
   } else {
     alert('Toutes les images sélectionnées existent déjà dans la prévisualisation.')
   }
@@ -57,20 +48,10 @@ const animateImages = () => {
   })
 }
 
-const saveImagesToStorage = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(images.value))
-}
-
-const clearImages = () => {
-  images.value = []
-  localStorage.removeItem(STORAGE_KEY)
-}
-
 const removeImage = (id: string) => {
   const index = images.value.findIndex(img => img.id === id)
   if (index !== -1) {
     images.value.splice(index, 1)
-    saveImagesToStorage()
   }
 }
 
@@ -103,20 +84,76 @@ const openFileSelector = () => {
   fileInputRef.value?.click()
 }
 
-const validate = (state: any): FormError[] => {
+const checkCategoryNameAvailability = async () => {
+  try {
+    const response = await fetch(`/api/categories/check-name?name=${encodeURIComponent(state.categoryName)}`)
+    const data = await response.json()
+    isCategoryNameAvailable.value = data.available
+  } catch (error) {
+    console.error('Error checking category name availability:', error)
+    isCategoryNameAvailable.value = false
+  }
+}
+
+const validate = async (state: any): Promise<FormError[]> => {
   const errors = []
-  if (!state.name) errors.push({ path: 'name', message: 'Please enter a name.' })
-  if (!state.email) errors.push({ path: 'email', message: 'Please enter an email.' })
+  if (!state.categoryName) errors.push({ path: 'categoryName', message: 'Please enter a category name.' })
+
+  await checkCategoryNameAvailability()
+  if (!isCategoryNameAvailable.value) {
+    errors.push({ path: 'categoryName', message: 'This category name is already taken.' })
+  }
+
+  if (images.value.length === 0) errors.push({ path: 'images', message: 'Please upload at least one image.' })
   return errors
 }
 
+const uploadImagesAndCreateCategory = async () => {
+  isUploading.value = true
+  uploadProgress.value = 0
+
+  try {
+    // Create category
+    const categoryResponse = await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: state.categoryName })
+    })
+    const categoryData = await categoryResponse.json()
+    const categoryId = categoryData.id
+
+    // Upload images
+    for (let i = 0; i < images.value.length; i++) {
+      const image = images.value[i]
+      const formData = new FormData()
+      formData.append('file', image.file)
+      formData.append('categoryId', categoryId.toString())
+
+      await fetch('/api/images/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      // Update progress
+      uploadProgress.value = ((i + 1) / images.value.length) * 100
+    }
+
+    isUploading.value = false
+    uploadProgress.value = 100
+  } catch (error) {
+    console.error('Error uploading images and creating category:', error)
+    isUploading.value = false
+  }
+}
+
 const onSubmit = async (event: FormSubmitEvent<any>) => {
-  console.log(event)
-  emit('close')
+  if (isCategoryNameAvailable.value) {
+    await uploadImagesAndCreateCategory()
+    emit('close')
+  }
 }
 
 const onCancel = () => {
-  clearImages()
   emit('close')
 }
 </script>
@@ -130,6 +167,19 @@ const onCancel = () => {
       class="space-y-4 mb-5"
       @submit="onSubmit"
     >
+      <UInput
+        v-model="state.categoryName"
+        label="Nom de la catégorie"
+        placeholder="Entrez le nom de la catégorie"
+        @blur="checkCategoryNameAvailability"
+      />
+      <p
+        v-if="!isCategoryNameAvailable"
+        class="text-red-500 text-sm"
+      >
+        Ce nom de catégorie est déjà utilisé.
+      </p>
+
       <div
         class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center mb-4 cursor-pointer"
         :class="{ 'bg-gray-100': isDragging }"
@@ -207,11 +257,31 @@ const onCancel = () => {
         />
         <UButton
           type="submit"
-          label="Ajouter"
+          label="Créer catégorie et uploader les images"
           color="black"
+          :disabled="!isCategoryNameAvailable"
         />
       </div>
     </UForm>
+
+    <!-- Progress bar -->
+    <div
+      v-if="isUploading"
+      class="fixed bottom-4 right-4 w-64 bg-white shadow-lg rounded-lg p-4"
+    >
+      <p class="text-sm font-semibold mb-2">
+        Uploading images...
+      </p>
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+        <div
+          class="bg-blue-600 h-2.5 rounded-full"
+          :style="{ width: `${uploadProgress}%` }"
+        />
+      </div>
+      <p class="text-xs mt-1 text-right">
+        {{ Math.round(uploadProgress) }}% ({{ Math.ceil((images.length * uploadProgress) / 100) }} sur {{ images.length }} images uploadées)
+      </p>
+    </div>
   </div>
 </template>
 

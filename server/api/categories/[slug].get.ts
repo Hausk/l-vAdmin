@@ -1,13 +1,9 @@
-import { useValidatedParams } from 'h3-zod'
-import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { db } from '~~/server/utils/db'
 import { categories } from '~~/server/database/schema'
 
-export default eventHandler(async (event) => {
-  const { slug } = await useValidatedParams(event, {
-    slug: z.string()
-  })
+export default eventHandler(async (event: any) => {
+  const slug: string = event.context.params?.id
 
   if (!slug) {
     throw createError({ statusCode: 400, statusMessage: 'Slug is required' })

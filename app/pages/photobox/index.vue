@@ -9,11 +9,10 @@
 
       <div class="button my-auto">
         <UButton
-          icon="ic:baseline-plus"
-          variant="solid"
-          color="primary"
-          size="md"
-          :ui="{ rounded: 'rounded-full' }"
+          label="Ajout d'une catégorie"
+          trailing-icon="ic:baseline-plus"
+          color="gray"
+          @click="isNewUserModalOpen = true"
         />
       </div>
     </div>
@@ -33,9 +32,19 @@
         </p>
       </NuxtLink>
     </div>
+    <UModal
+      v-model="isNewUserModalOpen"
+      title="New user"
+      description="Add a new user to your database"
+      :ui="{ width: 'sm:max-w-md' }"
+    >
+      <!-- ~/components/users/UsersForm.vue -->
+      <PhotoboxCategoriesForm @close="isNewUserModalOpen = false" />
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
 const { data: categories } = await useFetch('/api/categories')
+const isNewUserModalOpen = ref(false)
 </script>
