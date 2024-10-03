@@ -12,7 +12,7 @@
           label="Ajout d'images"
           trailing-icon="ic:baseline-plus"
           color="gray"
-          @click="isNewUserModalOpen = true"
+          @click="isModalOpen = true"
         />
         <UButton
           v-if="selectedImages.length > 0"
@@ -38,6 +38,16 @@
         p-5"
     >
       <div
+        v-if="isUploading"
+        class="w-full mb-4"
+      >
+        <p>Upload en cours : {{ uploadProgress.toFixed(2) }}%</p>
+        <div
+          class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+          :style="{ width: `${uploadProgress}%` }"
+        />
+      </div>
+      <div
         v-for="image in sortedImages"
         :key="image.id"
         class="w-full aspect-square mb-4 relative group"
@@ -45,7 +55,7 @@
         <img
           :src="image.path"
           alt="img path"
-          class="w-full aspect-square"
+          class="w-full aspect-square object-cover"
           :class="{ 'opacity-50': selectedImages.includes(image.id) }"
         >
         <div class="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -65,12 +75,16 @@
       </div>
     </div>
     <UModal
-      v-model="isNewUserModalOpen"
-      title="New user"
-      description="Add a new user to your database"
+      v-model="isModalOpen"
+      title="Ajout d'images"
       :ui="{ width: 'sm:max-w-md' }"
     >
-      <PhotoboxImagesForm @close="isNewUserModalOpen = false" />
+      <PhotoboxImagesForm
+        :category-id="categoryId"
+        @close="handleModalClose"
+        @images-uploaded="handleImagesUploaded"
+        @upload-status="handleUploadStatus"
+      />
     </UModal>
     <UModal v-model="isDeleteCategoryModalOpen">
       <UCard>
@@ -106,7 +120,26 @@
 <script lang="ts" setup>
 const route = useRoute()
 const router = useRouter()
+const showNotification = ref(false)
 const { data, refresh } = await useFetch(`/api/categories/${route.params.slug}`)
+const isUploading = ref(false)
+const uploadProgress = ref(0)
+
+const handleModalClose = () => {
+  isModalOpen.value = false
+  // Ne pas réinitialiser isUploading et uploadProgress ici
+}
+
+const handleUploadStatus = (progress: number) => {
+  isUploading.value = true
+  uploadProgress.value = progress
+  if (progress === 100) {
+    setTimeout(() => {
+      isUploading.value = false
+      uploadProgress.value = 0
+    }, 1000) // Garde la barre visible pendant 1 seconde après la fin
+  }
+}
 if (!data.value) {
   throw createError({
     statusCode: 404,
@@ -123,7 +156,7 @@ const links = computed(() => [{
 }, {
   label: categoryName.value.toUpperCase()
 }])
-const isNewUserModalOpen = ref(false)
+const isModalOpen = ref(false)
 const isDeleteCategoryModalOpen = ref(false)
 const selectedImages = ref<number[]>([])
 
@@ -179,5 +212,13 @@ const deleteCategory = async () => {
     // Handle error (e.g., show error message to user)
   }
   isDeleteCategoryModalOpen.value = false
+}
+
+const handleImagesUploaded = async (newImages: any[]) => {
+  images.value = [...images.value, ...newImages]
+  await refresh()
+  showNotification.value = true
+  isUploading.value = false
+  uploadProgress.value = 0
 }
 </script>

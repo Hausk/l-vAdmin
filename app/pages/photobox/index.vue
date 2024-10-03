@@ -38,13 +38,18 @@
       description="Add a new user to your database"
       :ui="{ width: 'sm:max-w-md' }"
     >
-      <!-- ~/components/users/UsersForm.vue -->
-      <PhotoboxCategoriesForm @close="isNewUserModalOpen = false" />
+      <PhotoboxCategoriesForm
+        @close="isNewUserModalOpen = false"
+        @images-uploaded="handleImagesUploaded"
+      />
     </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
-const { data: categories } = await useFetch('/api/categories')
+const { data: categories, refresh } = await useFetch('/api/categories')
 const isNewUserModalOpen = ref(false)
+const handleImagesUploaded = async () => {
+  await refresh()
+}
 </script>
