@@ -12,6 +12,13 @@
           label="Ajout d'images"
           trailing-icon="ic:baseline-plus"
           color="gray"
+          class="hidden md:flex"
+          @click="isModalOpen = true"
+        />
+        <UButton
+          icon="ic:baseline-plus"
+          color="gray"
+          class="flex md:hidden"
           @click="isModalOpen = true"
         />
         <UButton
@@ -25,6 +32,13 @@
           label="Supprimer catégorie"
           icon="i-heroicons-trash"
           color="red"
+          class="hidden md:flex"
+          @click="confirmDeleteCategory"
+        />
+        <UButton
+          icon="i-heroicons-trash"
+          color="red"
+          class="flex md:hidden"
           @click="confirmDeleteCategory"
         />
       </div>

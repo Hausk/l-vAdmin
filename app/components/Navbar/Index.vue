@@ -11,12 +11,6 @@ const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
   emit('toggle-sidebar')
 }
-const isActive = (link) => {
-  if (link === '/photobox') {
-    return route.path.startsWith('/photobox')
-  }
-  return route.path === link
-}
 const links = [{
   name: 'Statistiques',
   link: '/'
@@ -38,20 +32,8 @@ const isOpen = ref(false)
 </script>
 
 <template>
-  <nav class="w-full flex justify-between h-16 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+  <nav class="w-full flex justify-between h-16 border-b border-gray-200 bg-transparent dark:border-gray-700">
     <div class="flex items-center px-4">
-      <Button
-        class="mr-4 hover:bg-gray-100 dark:hover:bg-gray-700 hidden md:block"
-        text
-        @click="toggleSidebar"
-      >
-        <Icon
-          name="material-symbols:menu"
-          size="24px"
-          class="duration-300 m-auto"
-        />
-      </Button>
-
       <UButton
         class="flex md:hidden mr-4 text-center align-center"
         icon="material-symbols:menu"
@@ -93,12 +75,12 @@ const isOpen = ref(false)
             </div>
           </template>
 
-          <div class="overflow-y-auto mt-4 px-6 flex flex-col h-full">
-            <ul class="w-full gap-1.5 flex flex-col">
-              <li
+          <div class="overflow-y-auto px-6 flex flex-col h-full">
+            <div class="w-full gap-1.5 flex flex-col h-full justify-center">
+              <div
                 v-for="(link, index) in links"
                 :key="index"
-                class="w-full flex"
+                class="flex mb-4"
               >
                 <NuxtLink
                   v-slot="{ navigate }"
@@ -108,16 +90,23 @@ const isOpen = ref(false)
                 >
                   <UButton
                     variant="ghost"
-                    :color="route.path == link.link ? 'primary' : 'white'"
-                    class="px-2.5 py-1.5 w-full"
+                    :color="route.path == link.link ? 'white' : 'white'"
+                    class="px-2.5 py-1.5 w-full flex"
                     :class="route.path == link.link ? 'font-bold' : 'font-normal'"
-                    :label="link.name"
                     size="xl"
                     @click="navigate"
-                  />
+                  >
+                    <span
+                      class="h-2 w-2 my-auto rounded-full mr-2"
+                      :class="route.path == link.link ? 'bg-primary' : 'bg-transparent'"
+                    />
+                    <span class="text-2xl">
+                      {{ link.name }}
+                    </span>
+                  </UButton>
                 </NuxtLink>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
           <template #footer>
             <div class="mt-0 p-4">

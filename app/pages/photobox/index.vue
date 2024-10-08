@@ -14,7 +14,14 @@
           label="Ajout d'une catégorie"
           trailing-icon="ic:baseline-plus"
           color="gray"
-          @click="isNewUserModalOpen = true"
+          class="hidden md:flex"
+          @click="isModalOpen = true"
+        />
+        <UButton
+          icon="ic:baseline-plus"
+          color="gray"
+          class="flex md:hidden"
+          @click="isModalOpen = true"
         />
       </template>
     </Navbar>
@@ -35,13 +42,13 @@
       </NuxtLink>
     </div>
     <UModal
-      v-model="isNewUserModalOpen"
+      v-model="isModalOpen"
       title="New user"
       description="Add a new user to your database"
       :ui="{ width: 'sm:max-w-md' }"
     >
       <PhotoboxCategoriesForm
-        @close="isNewUserModalOpen = false"
+        @close="isModalOpen = false"
         @images-uploaded="handleImagesUploaded"
       />
     </UModal>
@@ -50,7 +57,7 @@
 
 <script setup lang="ts">
 const { data: categories, refresh } = await useFetch('/api/categories')
-const isNewUserModalOpen = ref(false)
+const isModalOpen = ref(false)
 const handleImagesUploaded = async () => {
   await refresh()
 }
