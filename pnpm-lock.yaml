@@ -41,6 +41,9 @@ importers:
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
+      swapy:
+        specifier: ^0.4.1
+        version: 0.4.1
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -4587,6 +4590,9 @@ packages:
     resolution: {integrity: sha512-OoohrmuUlBs8B8o6MB2Aevn+pRIH9zDALSR+6hhqVfa6fRwG/Qw9VUMSMW9VNg2CFc/MTIfabtdOVl9ODIJjpw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  swapy@0.4.1:
+    resolution: {integrity: sha512-8lL1CwOc3kuDVop2O/733+udNqisuwnex/8nTxYYDBaXa1pAOna/uDcOTfRK9zAdTYZ+3oStQ+QDJ7tPwU1fAA==}
 
   synckit@0.9.1:
     resolution: {integrity: sha512-7gr8p9TQP6RAHusBOSLs46F4564ZrjV8xFmw5zCmgmhGUcw2hxsShhJ6CEiHQMgPDwAQ1fWHPM0ypc4RMAig4A==}
@@ -9933,6 +9939,8 @@ snapshots:
       css-what: 6.1.0
       csso: 5.0.5
       picocolors: 1.1.0
+
+  swapy@0.4.1: {}
 
   synckit@0.9.1:
     dependencies:
