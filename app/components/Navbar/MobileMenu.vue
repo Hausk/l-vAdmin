@@ -1,33 +1,33 @@
 <script setup lang="ts">
-const OpenDrawer = ref(false)
+const isOpen = ref(false)
 </script>
 
 <template>
   <div>
     <UButton
       label="Open"
-      class="md:hidden"
-      @click="OpenDrawer = true"
+      class="md:hidden block"
+      @click="isOpen = true"
     />
 
-    <USlideover v-model="OpenDrawer">
+    <USlideover v-model="isOpen">
       <UCard
         class="flex flex-col flex-1"
         :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }"
       >
         <template #header>
-          <UButton
-            color="gray"
-            variant="ghost"
-            size="sm"
-            icon="i-heroicons-x-mark-20-solid"
-            class="flex sm:hidden absolute end-5 top-5 z-10"
-            square
-            padded
-            @click="OpenDrawer = false"
-          />
-
-          <Placeholder class="h-8" />
+          <div class="flex items-center justify-between w-full">
+            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+              Slideover
+            </h3>
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark-20-solid"
+              class="-my-1"
+              @click="isOpen = false"
+            />
+          </div>
         </template>
 
         <Placeholder class="h-full" />

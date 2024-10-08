@@ -1,17 +1,30 @@
 <script setup lang="ts">
-
+const toggleSidebar = () => {
+  // Logique pour ouvrir/fermer le drawer
+}
 </script>
 
 <template>
   <div class="w-full h-full flex flex-col">
-    <div class="w-full h-14 flex items-center justify-between px-6">
-      <h1>Statistiques</h1>
-      <UButton
-        :ui="{ rounded: 'rounded-full' }"
-        icon="ic:baseline-plus"
-        square
-      />
-    </div>
+    <Navbar @toggle-sidebar="toggleSidebar">
+      <template #breadcrumb>
+        <UBreadcrumb
+          divider="/"
+          :links="[{ label: 'Statistiques' }]"
+          class="my-auto"
+        />
+      </template>
+
+      <template #action-button>
+        <UButton
+          icon="ic:baseline-plus"
+          variant="solid"
+          color="primary"
+          size="md"
+          :ui="{ rounded: 'rounded-full' }"
+        />
+      </template>
+    </Navbar>
     <div class="w-full h-full flex items-center justify-center" />
   </div>
 </template>

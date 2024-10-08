@@ -1,21 +1,23 @@
 <template>
   <div class="">
-    <div class="h-14 lg:border-b border-gray-200 dark:border-gray-800 flex px-5 justify-between">
-      <UBreadcrumb
-        divider="/"
-        :links="[{ label: 'Photobox' }]"
-        class="my-auto"
-      />
+    <Navbar @toggle-sidebar="toggleSidebar">
+      <template #breadcrumb>
+        <UBreadcrumb
+          divider="/"
+          :links="[{ label: 'Photobox' }]"
+          class="my-auto"
+        />
+      </template>
 
-      <div class="button my-auto">
+      <template #action-button>
         <UButton
           label="Ajout d'une catégorie"
           trailing-icon="ic:baseline-plus"
           color="gray"
           @click="isNewUserModalOpen = true"
         />
-      </div>
-    </div>
+      </template>
+    </Navbar>
     <div class="p-5 w-full columns-3-xsw-full md:columns-4 columns-2">
       <NuxtLink
         v-for="categorie in categories"
@@ -51,5 +53,8 @@ const { data: categories, refresh } = await useFetch('/api/categories')
 const isNewUserModalOpen = ref(false)
 const handleImagesUploaded = async () => {
   await refresh()
+}
+const toggleSidebar = () => {
+  // LOGIQUE
 }
 </script>
