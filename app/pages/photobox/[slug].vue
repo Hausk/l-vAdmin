@@ -1,48 +1,48 @@
 <template>
   <div class="w-full h-screen">
-    <div class="h-14 lg:border-b border-gray-200 dark:border-gray-800 flex px-5 justify-between">
-      <UBreadcrumb
-        divider="/"
-        :links="links"
-        class="my-auto"
-      />
+    <Navbar @toggle-sidebar="toggleSidebar">
+      <template #breadcrumb>
+        <UBreadcrumb
+          divider="/"
+          :links="links"
+          class="my-auto"
+        />
+      </template>
 
-      <div class="button-group my-auto flex space-x-2">
-        <UButton
-          label="Ajout d'images"
-          trailing-icon="ic:baseline-plus"
-          color="gray"
-          class="hidden md:flex"
-          @click="isModalOpen = true"
-        />
-        <UButton
-          icon="ic:baseline-plus"
-          color="gray"
-          class="flex md:hidden"
-          @click="isModalOpen = true"
-        />
-        <UButton
-          v-if="selectedImages.length > 0"
-          label="Supprimer sélection"
-          icon="i-heroicons-trash"
-          color="red"
-          @click="deleteSelectedImages"
-        />
-        <UButton
-          label="Supprimer catégorie"
-          icon="i-heroicons-trash"
-          color="red"
-          class="hidden md:flex"
-          @click="confirmDeleteCategory"
-        />
-        <UButton
-          icon="i-heroicons-trash"
-          color="red"
-          class="flex md:hidden"
-          @click="confirmDeleteCategory"
-        />
-      </div>
-    </div>
+      <template #action-button>
+        <div class="flex gap-4">
+          <UButton
+            label="Ajout d'images"
+            trailing-icon="ic:baseline-plus"
+            color="gray"
+            class="hidden md:flex"
+            @click="isModalOpen = true"
+          />
+          <UButton
+            icon="ic:baseline-plus"
+            color="gray"
+            class="flex md:hidden"
+            @click="isModalOpen = true"
+          />
+          <UButton
+            v-if="selectedImages.length > 0"
+            label="Supprimer sélection"
+            icon="i-heroicons-trash"
+            color="red"
+            class="hidden md:flex"
+            @click="deleteSelectedImages"
+          />
+          <UButton
+            v-if="selectedImages.length > 0"
+            icon="i-heroicons-trash"
+            color="red"
+            class="flex md:hidden"
+            @click="deleteSelectedImages"
+          />
+        </div>
+      </template>
+    </Navbar>
+
     <div
       class="
         w-full
@@ -64,12 +64,12 @@
       <div
         v-for="image in sortedImages"
         :key="image.id"
-        class="w-full aspect-square mb-4 relative group"
+        class="w-full aspect-square mb-4 relative group max-h-[400px] overflow-hidden flex"
       >
         <img
           :src="image.path"
           alt="img path"
-          class="w-full aspect-square object-cover"
+          class="w-full m-auto object-cover"
           :class="{ 'opacity-50': selectedImages.includes(image.id) }"
         >
         <div class="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -136,10 +136,15 @@
 const route = useRoute()
 const router = useRouter()
 const showNotification = ref(false)
-const { data, refresh } = await useFetch(`/api/categories/${route.params.slug}`)
+const { data, refresh } = await useFetch(`/api/categories/${route.params.slug}`) as any
 const isUploading = ref(false)
 const uploadProgress = ref(0)
 const pinnedImageId = ref(data.value.pinnedImageId)
+
+const toggleSidebar = () => {
+  const sidebar = document.querySelector('.sidebar') as HTMLElement
+  sidebar.classList.toggle('hidden')
+}
 
 const handleModalClose = () => {
   isModalOpen.value = false
@@ -164,7 +169,6 @@ if (!data.value) {
 }
 
 const images = ref(data.value.images)
-const PinnedImage = ref(data.value.pinnedImage)
 const categoryName = ref(data.value.name)
 const categoryId = ref(data.value.id)
 const links = computed(() => [{
@@ -206,7 +210,7 @@ const deleteSelectedImages = async () => {
       method: 'POST',
       body: { imageIds: selectedImages.value }
     })
-    images.value = images.value.filter(img => !selectedImages.value.includes(img.id))
+    images.value = images.value.filter((img: any) => !selectedImages.value.includes(img.id))
     selectedImages.value = []
   } catch (error) {
     console.error('Error deleting images:', error)

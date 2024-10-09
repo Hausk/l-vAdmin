@@ -5,7 +5,7 @@ import { defineEmits, ref } from 'vue'
 const route = useRoute()
 
 const emit = defineEmits(['toggle-sidebar'])
-
+console.log(route.path.startsWith('/photobox'))
 const isSidebarOpen = ref(true)
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
@@ -90,15 +90,15 @@ const isOpen = ref(false)
                 >
                   <UButton
                     variant="ghost"
-                    :color="route.path == link.link ? 'white' : 'white'"
+                    color="white"
                     class="px-2.5 py-1.5 w-full flex"
-                    :class="route.path == link.link ? 'font-bold' : 'font-normal'"
+                    :class="route.path == link.link || link.link.startsWith('/photobox') ? 'font-bold' : 'font-normal'"
                     size="xl"
                     @click="navigate"
                   >
                     <span
                       class="h-2 w-2 my-auto rounded-full mr-2"
-                      :class="route.path == link.link ? 'bg-primary' : 'bg-transparent'"
+                      :class="route.path == link.link || link.link.startsWith('/photobox') ? 'bg-primary' : 'bg-transparent'"
                     />
                     <span class="text-2xl">
                       {{ link.name }}
@@ -120,7 +120,6 @@ const isOpen = ref(false)
     </div>
 
     <div class="flex items-center px-4">
-      <!-- Slot pour le bouton d'action -->
       <slot name="action-button" />
     </div>
   </nav>
