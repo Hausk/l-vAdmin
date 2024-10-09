@@ -47,7 +47,8 @@
       class="
         w-full
         columns-3-xsw-full
-        md:columns-4
+        md:columns-3
+        lg:columns-4
         columns-2
         p-5"
     >
@@ -64,7 +65,7 @@
       <div
         v-for="image in sortedImages"
         :key="image.id"
-        class="w-full aspect-square mb-4 relative group max-h-[400px] overflow-hidden flex"
+        class="w-full aspect-square mb-4 relative group max-h-[50vh] overflow-hidden flex"
       >
         <img
           :src="image.path"

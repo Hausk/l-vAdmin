@@ -92,13 +92,13 @@ const isOpen = ref(false)
                     variant="ghost"
                     color="white"
                     class="px-2.5 py-1.5 w-full flex"
-                    :class="route.path == link.link || link.link.startsWith('/photobox') ? 'font-bold' : 'font-normal'"
+                    :class="route.path == link.link || (route.path.startsWith('/photobox') && link.link.startsWith('/photobox')) ? 'font-bold' : 'font-normal'"
                     size="xl"
                     @click="navigate"
                   >
                     <span
                       class="h-2 w-2 my-auto rounded-full mr-2"
-                      :class="route.path == link.link || link.link.startsWith('/photobox') ? 'bg-primary' : 'bg-transparent'"
+                      :class="route.path == link.link || (route.path.startsWith('/photobox') && link.link.startsWith('/photobox')) ? 'bg-primary' : 'bg-transparent'"
                     />
                     <span class="text-2xl">
                       {{ link.name }}
