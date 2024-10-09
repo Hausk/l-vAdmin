@@ -79,8 +79,9 @@
             color="primary"
           />
           <UButton
-            :icon="image.isPinned ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
-            :color="image.isPinned ? 'yellow' : 'white'"
+            :icon="pinnedImageId == image.id ? 'material-symbols:star' : 'material-symbols:star-outline' "
+            color="white"
+            :style="pinnedImageId == image.id ? 'color:yellow' : 'color:white'"
             variant="solid"
             size="xs"
             @click="togglePinImage(image.id)"
@@ -138,6 +139,7 @@ const showNotification = ref(false)
 const { data, refresh } = await useFetch(`/api/categories/${route.params.slug}`)
 const isUploading = ref(false)
 const uploadProgress = ref(0)
+const pinnedImageId = ref(data.value.pinnedImageId)
 
 const handleModalClose = () => {
   isModalOpen.value = false
@@ -162,6 +164,7 @@ if (!data.value) {
 }
 
 const images = ref(data.value.images)
+const PinnedImage = ref(data.value.pinnedImage)
 const categoryName = ref(data.value.name)
 const categoryId = ref(data.value.id)
 const links = computed(() => [{

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
 
+const { loggedIn } = useUserSession()
+
+if (!loggedIn.value) {
+  navigateTo('/login')
+}
 useSeoMeta({
   title: 'Page not found',
   description: 'We are sorry but this page could not be found.'
