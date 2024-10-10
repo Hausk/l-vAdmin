@@ -1,4 +1,6 @@
 <script setup>
+import UploadNotification from '~/components/UploadNotification.vue'
+
 const { loggedIn } = useUserSession()
 
 if (!loggedIn.value) {
@@ -30,5 +32,6 @@ const isSidebarOpen = ref(true)
       </div>
     </div>
     <UNotifications />
+    <UploadNotification />
   </div>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import type { FormError, FormSubmitEvent } from '#ui/types'
+import { useUploadStore } from '~/stores/uploadStore'
 
 interface Image {
   id: string
@@ -9,6 +10,7 @@ interface Image {
   visible: boolean
   file: File
 }
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 Mo en octets
 
 const images = ref<Image[]>([])
 const isDragging = ref(false)
@@ -16,13 +18,19 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 const uploadProgress = ref(0)
 const isUploading = ref(false)
 const isCategoryNameAvailable = ref(true)
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'images-uploaded'])
 
 const state = reactive({
   categoryName: ''
 })
 
 const handleFiles = (files: File[]) => {
+  const validFiles = files.filter(file => file.size <= MAX_FILE_SIZE)
+  const invalidFiles = files.filter(file => file.size > MAX_FILE_SIZE)
+
+  if (invalidFiles.length > 0) {
+    alert(`Les fichiers suivants sont trop volumineux (max 10 Mo) et ne seront pas ajoutés:\n${invalidFiles.map(f => f.name).join('\n')}`)
+  }
   const newImages = files.filter(file => !images.value.some(img => img.name === file.name))
     .map(file => ({
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -108,9 +116,10 @@ const validate = async (state: any): Promise<FormError[]> => {
   return errors
 }
 
+const uploadStore = useUploadStore()
+
 const uploadImagesAndCreateCategory = async () => {
-  isUploading.value = true
-  uploadProgress.value = 0
+  uploadStore.startUpload(images.value.length)
 
   try {
     // Create category
@@ -129,23 +138,32 @@ const uploadImagesAndCreateCategory = async () => {
       formData.append('file', image.file)
       formData.append('categoryId', categoryId.toString())
 
-      await fetch('/api/images/upload', {
-        method: 'POST',
-        body: formData
-      })
+      try {
+        const response = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData
+        })
 
-      // Update progress
-      uploadProgress.value = ((i + 1) / images.value.length) * 100
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        // Update progress
+        uploadStore.updateProgress(i + 1)
+      } catch (error) {
+        console.error(`Error uploading image ${image.name}:`, error)
+        // Optionally, you can add some error handling here,
+        // such as marking the image as failed in the UI
+      }
     }
 
-    isUploading.value = false
-    uploadProgress.value = 100
+    uploadStore.finishUpload()
+    emit('images-uploaded')
   } catch (error) {
     console.error('Error uploading images and creating category:', error)
-    isUploading.value = false
+    uploadStore.finishUpload()
   }
 }
-
 const onSubmit = async (event: FormSubmitEvent<any>) => {
   if (isCategoryNameAvailable.value) {
     await uploadImagesAndCreateCategory()
@@ -257,7 +275,7 @@ const onCancel = () => {
         />
         <UButton
           type="submit"
-          label="Créer catégorie et uploader les images"
+          label="Valider"
           color="black"
           :disabled="!isCategoryNameAvailable"
         />
