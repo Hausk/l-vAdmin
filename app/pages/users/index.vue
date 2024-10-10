@@ -68,7 +68,7 @@ const query = computed(() => ({ q: q.value, statuses: selectedStatuses.value, lo
 const { data: users, pending, refresh } = await useFetch('/api/users', { query, default: () => [] })
 
 function onSelect(row: never) {
-  const index = selected.value.findIndex(item => item.id === row.id)
+  const index: number = selected.value.findIndex((item: any) => item.id === row.id)
   if (index === -1) {
     selected.value.push(row)
   } else {
@@ -119,7 +119,7 @@ const addUser = async (event: FormSubmitEvent<any>) => {
 }
 const editUser = async (event: FormSubmitEvent<any>) => {
   try {
-    const res = await $fetch(`/api/users/${editingUser.value.id}`, {
+    const res: any = await $fetch(`/api/users/${editingUser.value?.id}`, {
       method: 'PATCH',
       body: {
         email: event.data.email,
@@ -139,7 +139,7 @@ const deleteUsers = async () => {
   try {
     await $fetch('/api/users/', {
       method: 'DELETE',
-      body: { ids: selected.value.map(user => user.id) }
+      body: { ids: selected.value.map((user: any) => user.id) }
     })
     await refresh()
     toast.add({ title: `${selected.value.length} utilisateur(s) supprimé(s).`, color: 'green' })
@@ -150,7 +150,7 @@ const deleteUsers = async () => {
   }
 }
 
-const openEditModal = (user) => {
+const openEditModal = (user: any) => {
   editingUser.value = user
   state.email = user.email
   state.name = user.name
