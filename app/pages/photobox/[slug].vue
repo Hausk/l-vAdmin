@@ -72,6 +72,7 @@
           alt="img path"
           class="w-full m-auto object-cover"
           :class="{ 'opacity-50': selectedImages.includes(image.id) }"
+          loading="lazy"
         >
         <div class="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <UCheckbox
@@ -93,13 +94,13 @@
     <UModal
       v-model="isModalOpen"
       title="Ajout d'images"
+      description="Ajout de nouvelles images à votre Photobox"
       :ui="{ width: 'sm:max-w-md' }"
     >
       <PhotoboxImagesForm
         :category-id="categoryId"
-        @close="handleModalClose"
+        @close="isModalOpen = false"
         @images-uploaded="handleImagesUploaded"
-        @upload-status="handleUploadStatus"
       />
     </UModal>
     <UModal v-model="isDeleteCategoryModalOpen">
@@ -134,34 +135,29 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute()
+import { useUploadStore } from '~/stores/uploadStore'
+
 const router = useRouter()
-const showNotification = ref(false)
-const { data, refresh } = await useFetch(`/api/categories/${route.params.slug}`) as any
+const route = useRoute()
+const { data, refresh } = await useFetch(`/api/categories/${route.params.slug}`)
+
+const isModalOpen = ref(false)
+const uploadStore = useUploadStore()
+
 const isUploading = ref(false)
 const uploadProgress = ref(0)
 const pinnedImageId = ref(data.value.pinnedImageId)
+const isDeleteCategoryModalOpen = ref(false)
+const selectedImages = ref<number[]>([])
+const images = ref(data.value.images)
+const categoryName = ref(data.value.name)
+const categoryId = ref(data.value.id)
 
 const toggleSidebar = () => {
   const sidebar = document.querySelector('.sidebar') as HTMLElement
   sidebar.classList.toggle('hidden')
 }
 
-const handleModalClose = () => {
-  isModalOpen.value = false
-  // Ne pas réinitialiser isUploading et uploadProgress ici
-}
-
-const handleUploadStatus = (progress: number) => {
-  isUploading.value = true
-  uploadProgress.value = progress
-  if (progress === 100) {
-    setTimeout(() => {
-      isUploading.value = false
-      uploadProgress.value = 0
-    }, 1000) // Garde la barre visible pendant 1 seconde après la fin
-  }
-}
 if (!data.value) {
   throw createError({
     statusCode: 404,
@@ -169,18 +165,12 @@ if (!data.value) {
   })
 }
 
-const images = ref(data.value.images)
-const categoryName = ref(data.value.name)
-const categoryId = ref(data.value.id)
 const links = computed(() => [{
   label: 'Photobox',
   to: '/photobox'
 }, {
   label: categoryName.value.toUpperCase()
 }])
-const isModalOpen = ref(false)
-const isDeleteCategoryModalOpen = ref(false)
-const selectedImages = ref<number[]>([])
 
 const sortedImages = computed(() => {
   return [...images.value].sort((a, b) => {
@@ -219,10 +209,6 @@ const deleteSelectedImages = async () => {
   }
 }
 
-const confirmDeleteCategory = () => {
-  isDeleteCategoryModalOpen.value = true
-}
-
 const deleteCategory = async () => {
   try {
     await $fetch(`/api/categories/${categoryId.value}`, {
@@ -236,11 +222,12 @@ const deleteCategory = async () => {
   isDeleteCategoryModalOpen.value = false
 }
 
-const handleImagesUploaded = async (newImages: any[]) => {
-  images.value = [...images.value, ...newImages]
+const handleImagesUploaded = async () => {
   await refresh()
-  showNotification.value = true
-  isUploading.value = false
-  uploadProgress.value = 0
 }
+watch(() => uploadStore.isUploading, (newValue) => {
+  if (!newValue) {
+    refresh()
+  }
+})
 </script>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import type { FormError } from '#ui/types'
 import { useUploadStore } from '~/stores/uploadStore'
 
 interface Image {
@@ -15,8 +15,6 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 Mo en octets
 const images = ref<Image[]>([])
 const isDragging = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
-const uploadProgress = ref(0)
-const isUploading = ref(false)
 const isCategoryNameAvailable = ref(true)
 const emit = defineEmits(['close', 'images-uploaded'])
 
@@ -25,7 +23,6 @@ const state = reactive({
 })
 
 const handleFiles = (files: File[]) => {
-  const validFiles = files.filter(file => file.size <= MAX_FILE_SIZE)
   const invalidFiles = files.filter(file => file.size > MAX_FILE_SIZE)
 
   if (invalidFiles.length > 0) {
@@ -152,8 +149,6 @@ const uploadImagesAndCreateCategory = async () => {
         uploadStore.updateProgress(i + 1)
       } catch (error) {
         console.error(`Error uploading image ${image.name}:`, error)
-        // Optionally, you can add some error handling here,
-        // such as marking the image as failed in the UI
       }
     }
 
@@ -164,7 +159,7 @@ const uploadImagesAndCreateCategory = async () => {
     uploadStore.finishUpload()
   }
 }
-const onSubmit = async (event: FormSubmitEvent<any>) => {
+const onSubmit = async () => {
   if (isCategoryNameAvailable.value) {
     await uploadImagesAndCreateCategory()
     emit('close')
@@ -219,7 +214,7 @@ const onCancel = () => {
           J'attends tes photos ici
         </p>
         <p class="mt-2 text-sm text-gray-400">
-          {{ images.length }} image(s) en prévisualisation
+          {{ images.length }} image(s) en attente
         </p>
       </div>
 
@@ -281,25 +276,6 @@ const onCancel = () => {
         />
       </div>
     </UForm>
-
-    <!-- Progress bar -->
-    <div
-      v-if="isUploading"
-      class="fixed bottom-4 right-4 w-64 bg-white shadow-lg rounded-lg p-4"
-    >
-      <p class="text-sm font-semibold mb-2">
-        Uploading images...
-      </p>
-      <div class="w-full bg-gray-200 rounded-full h-2.5">
-        <div
-          class="bg-blue-600 h-2.5 rounded-full"
-          :style="{ width: `${uploadProgress}%` }"
-        />
-      </div>
-      <p class="text-xs mt-1 text-right">
-        {{ Math.round(uploadProgress) }}% ({{ Math.ceil((images.length * uploadProgress) / 100) }} sur {{ images.length }} images uploadées)
-      </p>
-    </div>
   </div>
 </template>
 

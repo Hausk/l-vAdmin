@@ -1,38 +1,57 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { FormSubmitEvent } from '#ui/types'
+import { useUploadStore } from '~/stores/uploadStore'
 
-interface PreviewImage {
+interface Image {
   id: string
+  name: string
+  url: string
+  visible: boolean
   file: File
-  preview: string
 }
 
 const props = defineProps<{
   categoryId: number
 }>()
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 Mo en octets
 
-const previewImages = ref<PreviewImage[]>([])
+const images = ref<Image[]>([])
 const isDragging = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
-const uploadProgress = ref(0)
-const isUploading = ref(false)
-const emit = defineEmits(['close', 'imagesUploaded', 'upload-status'])
+const emit = defineEmits(['close', 'images-uploaded'])
 
 const handleFiles = (files: File[]) => {
-  const newPreviewImages = files.map(file => ({
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    file,
-    preview: URL.createObjectURL(file)
-  }))
-  previewImages.value.push(...newPreviewImages)
-}
+  const invalidFiles = files.filter(file => file.size > MAX_FILE_SIZE)
 
+  if (invalidFiles.length > 0) {
+    alert(`Les fichiers suivants sont trop volumineux (max 10 Mo) et ne seront pas ajoutés:\n${invalidFiles.map(f => f.name).join('\n')}`)
+  }
+  const newImages = files.filter(file => !images.value.some(img => img.name === file.name))
+    .map(file => ({
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      name: file.name,
+      url: URL.createObjectURL(file),
+      visible: false,
+      file: file
+    }))
+  if (newImages.length > 0) {
+    images.value.push(...newImages)
+    animateImages()
+  } else {
+    alert('Toutes les images sélectionnées existent déjà dans la prévisualisation.')
+  }
+}
+const animateImages = () => {
+  images.value.forEach((image, index) => {
+    setTimeout(() => {
+      image.visible = true
+    }, (images.value.length - index) * 50)
+  })
+}
 const removeImage = (id: string) => {
-  const index = previewImages.value.findIndex(img => img.id === id)
+  const index = images.value.findIndex(img => img.id === id)
   if (index !== -1) {
-    URL.revokeObjectURL(previewImages.value[index].preview)
-    previewImages.value.splice(index, 1)
+    images.value.splice(index, 1)
   }
 }
 
@@ -65,49 +84,48 @@ const openFileSelector = () => {
   fileInputRef.value?.click()
 }
 
+const uploadStore = useUploadStore()
+
 const uploadImages = async () => {
-  isUploading.value = true
-  uploadProgress.value = 0
-  const totalImages = previewImages.value.length
-  const uploadedImages = []
+  uploadStore.startUpload(images.value.length)
+  try {
+    for (let i = 0; i < images.value.length; i++) {
+      const image = images.value[i]
+      const formData = new FormData()
+      formData.append('file', image.file)
+      formData.append('categoryId', props.categoryId.toString())
 
-  for (let i = 0; i < totalImages; i++) {
-    const { file } = previewImages.value[i]
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('categoryId', props.categoryId.toString())
+      try {
+        const response = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData
+        })
 
-    try {
-      const response = await $fetch('/api/images', {
-        method: 'POST',
-        body: formData
-      })
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-      if (response.data && response.data.image) {
-        uploadedImages.push(response.data.image)
+        // Update progress
+        uploadStore.updateProgress(i + 1)
+      } catch (error) {
+        console.error(`Error uploading image ${image.name}:`, error)
       }
-
-      uploadProgress.value = ((i + 1) / totalImages) * 100
-      emit('upload-status', uploadProgress.value)
-    } catch (error) {
-      console.error('Error uploading image:', error)
     }
+    uploadStore.finishUpload()
+    emit('images-uploaded')
+  } catch (error) {
+    console.error('Error uploading images:', error)
+    uploadStore.finishUpload()
   }
-
-  isUploading.value = false
-  emit('imagesUploaded', uploadedImages)
-  previewImages.value = []
-  emit('close') // Déplacé ici, après la fin de l'upload
 }
 
-const onSubmit = async (event: FormSubmitEvent<any>) => {
-  event.preventDefault()
-  emit('close') // Ferme la modal immédiatement
-  await uploadImages() // Continue l'upload en arrière-plan
+const onSubmit = async () => {
+  console.log('Oui')
+  await uploadImages()
+  emit('close')
 }
 const onCancel = () => {
-  previewImages.value.forEach(img => URL.revokeObjectURL(img.preview))
-  previewImages.value = []
+  images.value = []
   emit('close')
 }
 </script>
@@ -139,7 +157,7 @@ const onCancel = () => {
           J'attends tes photos ici
         </p>
         <p class="mt-2 text-sm text-gray-400">
-          {{ previewImages.length }} image(s) en prévisualisation
+          {{ images.length }} image(s) en attente
         </p>
       </div>
 
@@ -154,17 +172,17 @@ const onCancel = () => {
       <div class="w-full max-h-[50vh] overflow-y-auto overflow-x-hidden">
         <div class="w-full columns-3">
           <div
-            v-for="image in previewImages"
+            v-for="image in images"
             :key="image.id"
-            class="mb-4 relative group"
+            class="mb-4 transition-opacity duration-300 ease-in-out relative group"
+            :class="{ 'opacity-0': !image.visible, 'opacity-100': image.visible }"
           >
             <img
-              :src="image.preview"
-              :alt="image.file.name"
+              :src="image.url"
+              :alt="image.name"
               class="w-full aspect-square rounded-lg object-cover"
             >
             <button
-              type="button"
               class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               @click="removeImage(image.id)"
             >
@@ -195,9 +213,9 @@ const onCancel = () => {
         />
         <UButton
           type="submit"
-          label="Sauvegarder"
+          label="Valider"
           color="black"
-          :loading="isUploading"
+          @click="onSubmit"
         />
       </div>
     </form>
