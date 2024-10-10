@@ -245,7 +245,7 @@ const openEditModal = (user: any) => {
               @click="closeModal"
             />
             <UButton
-              :disabled="!isEmailUnique || state.email != undefined ? true : false"
+              :disabled="!isEmailUnique || !state.email ? true : false"
               label="Valider"
               color="primary"
               type="submit"
@@ -297,7 +297,7 @@ const openEditModal = (user: any) => {
               @click="closeModal"
             />
             <UButton
-              :disabled="!isEmailUnique || state.email != undefined ? true : false"
+              :disabled="!isEmailUnique || !state.email ? true : false"
               label="Valider"
               color="primary"
               type="submit"
