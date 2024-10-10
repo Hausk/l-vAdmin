@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
 
   const updatedUser = await db.update(users)
     .set({
-      email: body.email,
-      name: body.name
+      email: body.email.toLowerCase(),
+      name: body.name.toLowerCase()
     })
     .where(eq(users.id, parseInt(id as string)))
     .returning()

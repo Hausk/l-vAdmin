@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const existingUser = await db.select().from(users).where(eq(users.email, email)).execute()
+  const existingUser = await db.select().from(users).where(eq(users.email, email.toLowerCase())).execute()
 
   return {
     available: existingUser.length === 0

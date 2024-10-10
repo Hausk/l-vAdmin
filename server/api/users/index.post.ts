@@ -4,8 +4,8 @@ import { db } from '~~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const { email, name } = await useValidatedBody(event, {
-    email: z.string().min(5),
-    name: z.string()
+    email: z.string().min(5).toLowerCase(),
+    name: z.string().toLowerCase()
   })
 
   if (!email) {
