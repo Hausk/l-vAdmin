@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@nuxt/eslint',
     '@nuxtjs/tailwindcss',
-    '@nuxt/icon'
+    '@nuxt/icon',
+    '@pinia/nuxt'
   ],
   // Development config
   eslint: {
