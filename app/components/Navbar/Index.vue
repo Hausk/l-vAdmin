@@ -22,12 +22,7 @@ const links = [{
 {
   name: 'Utilisateurs',
   link: '/users'
-},
-{
-  name: 'Test Erreur',
-  link: '/doaskdlqmk'
-}
-]
+}]
 const isOpen = ref(false)
 </script>
 
@@ -35,7 +30,7 @@ const isOpen = ref(false)
   <nav class="w-full flex justify-between h-16 border-b border-gray-200 bg-transparent dark:border-gray-700">
     <div class="flex items-center px-4">
       <UButton
-        class="flex md:hidden mr-4 text-center align-center"
+        class="flex lg:hidden mr-4 text-center align-center"
         icon="material-symbols:menu"
         square
         variant="ghost"

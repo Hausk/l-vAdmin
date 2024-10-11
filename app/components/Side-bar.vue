@@ -15,16 +15,11 @@ const links = [{
 {
   name: 'Utilisateurs',
   link: '/users'
-},
-{
-  name: 'Test Erreur',
-  link: '/doaskdlqmk'
-}
-]
+}]
 </script>
 
 <template>
-  <div class="w-[18rem] justify-between h-screen fixed left-0 top-0 sidebar hidden md:flex flex-col lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 flex-shrink-0">
+  <div class="w-[18rem] justify-between h-screen fixed left-0 top-0 sidebar hidden lg:flex flex-col lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 flex-shrink-0">
     <div class="px-6 w-full h-16 flex flex-col">
       <div class="flex items-center justify-between flex-1 gap-x-1.5 min-w-0">
         <UButton variant="link">
