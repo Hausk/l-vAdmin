@@ -79,7 +79,7 @@
       <div
         v-for="image in sortedImages"
         :key="image.id"
-        class="w-full aspect-square mb-4 relative group max-h-[50vh] overflow-hidden flex"
+        class="w-full aspect-square mb-4 relative group max-h-[50vh] overflow-hidden flex border-gray-200 dark:border-gray-600 rounded-lg border"
       >
         <img
           :src="image.path"
