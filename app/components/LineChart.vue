@@ -6,7 +6,6 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
 import Chart from 'chart.js/auto'
 
 const props = defineProps(['data'])

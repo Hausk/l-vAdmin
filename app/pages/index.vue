@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import LineChart from '~/components/LineChart.vue'
-
 const stats = ref({
   totalUsers: 0,
   totalCategories: 0,
