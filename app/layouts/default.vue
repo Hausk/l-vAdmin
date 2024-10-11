@@ -24,10 +24,10 @@ const isSidebarOpen = ref(true)
 </script>
 
 <template>
-  <div class="w-screen h-screen overflow-hidden flex">
+  <div class="w-screen h-screen flex">
     <SideBar :is-open="isSidebarOpen" />
-    <div class="md:ml-[18rem] h-screen overflow-hidden w-full">
-      <div class="flex-1 overflow-y-auto overflow-x-hidden relative">
+    <div class="md:ml-[18rem] min-h-screen overflow-x-hidden w-full">
+      <div class="flex-1 relative w-full">
         <NuxtPage />
       </div>
     </div>
