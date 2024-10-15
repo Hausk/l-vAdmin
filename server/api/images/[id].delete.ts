@@ -24,9 +24,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Delete image from Cloudinary
-    const publicId = deletedImage.path.split('/').pop()?.split('.')[0]
+    const publicId = deletedImage.path.split('/category_images/')[1].replace(/\.[^/.]+$/, '')
     if (publicId) {
-      await cloudinary.uploader.destroy(publicId)
+      await cloudinary.uploader.destroy(`category_images/${publicId}`)
     }
 
     return { success: true }
