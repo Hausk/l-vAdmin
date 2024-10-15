@@ -1,4 +1,5 @@
 <script setup>
+const route = useRoute()
 const account = {
   userName: 'Jonathan Bessa',
   email: 'test@test.fr',
@@ -47,8 +48,15 @@ const links = [{
             variant="ghost"
             color="gray"
             class="px-2.5 py-1.5 w-full"
+            :class="route.path == link.link || (route.path.startsWith('/photobox') && link.link.startsWith('/photobox')) ? 'font-bold' : 'font-normal'"
           >
-            {{ link.name }}
+            <span
+              class="h-2 w-2 my-auto rounded-full mr-2"
+              :class="route.path == link.link || (route.path.startsWith('/photobox') && link.link.startsWith('/photobox')) ? 'bg-primary' : 'bg-transparent'"
+            />
+            <span class="">
+              {{ link.name }}
+            </span>
           </UButton>
         </li>
       </ul>

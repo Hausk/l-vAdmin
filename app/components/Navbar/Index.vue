@@ -5,7 +5,6 @@ import { defineEmits, ref } from 'vue'
 const route = useRoute()
 
 const emit = defineEmits(['toggle-sidebar'])
-console.log(route.path.startsWith('/photobox'))
 const isSidebarOpen = ref(true)
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
