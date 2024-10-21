@@ -161,8 +161,8 @@ const uploadImagesAndCreateCategory = async () => {
 }
 const onSubmit = async () => {
   if (isCategoryNameAvailable.value) {
-    await uploadImagesAndCreateCategory()
     emit('close')
+    await uploadImagesAndCreateCategory()
   }
 }
 

@@ -160,34 +160,6 @@
         @images-uploaded="handleImagesUploaded"
       />
     </UModal>
-    <UModal v-model="isDeleteCategoryModalOpen">
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-              Confirmer la suppression
-            </h3>
-          </div>
-        </template>
-        <p>Êtes-vous sûr de vouloir supprimer cette catégorie et toutes ses images associées ? Cette action est irréversible.</p>
-        <template #footer>
-          <div class="flex justify-end space-x-2">
-            <UButton
-              color="gray"
-              @click="isDeleteCategoryModalOpen = false"
-            >
-              Annuler
-            </UButton>
-            <UButton
-              color="red"
-              @click="deleteCategory"
-            >
-              Supprimer
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </div>
 </template>
 
@@ -197,7 +169,7 @@ import type { FormError } from '#ui/types'
 
 const router = useRouter()
 const route = useRoute()
-const { data: imagesList, refresh } = await useFetch(`/api/categories/${route.params.slug}`) as any
+const { data: imagesList, refresh } = await useFetch(`/api/categories/${route.params.slug}`)
 
 const isModalOpen = ref(false)
 const isEditCategoryModalOpen = ref(false)
@@ -207,7 +179,6 @@ const isCategoryNameAvailable = ref(true)
 const isUploading = ref(false)
 const uploadProgress = ref(0)
 const pinnedImageId = ref(imagesList.value.pinnedImageId)
-const isDeleteCategoryModalOpen = ref(false)
 const selectedImages = ref<number[]>([])
 const images = ref(imagesList.value.images)
 const categoryName = ref(imagesList.value.name)
@@ -303,29 +274,13 @@ const togglePinImage = async (imageId: number) => {
 }
 
 const deleteSelectedImages = async () => {
-  try {
-    await $fetch(`/api/images/bulk-delete`, {
-      method: 'POST',
-      body: { imageIds: selectedImages.value }
-    })
-    images.value = images.value.filter((img: any) => !selectedImages.value.includes(img.id))
-    selectedImages.value = []
-  } catch (error) {
-    console.error('Error deleting images:', error)
-  }
-}
-
-const deleteCategory = async () => {
-  try {
-    await $fetch(`/api/categories/${categoryId.value}`, {
-      method: 'DELETE'
-    })
-    router.push('/photobox')
-  } catch (error) {
-    console.error('Error deleting category:', error)
-    // Handle error (e.g., show error message to user)
-  }
-  isDeleteCategoryModalOpen.value = false
+  await $fetch(`/api/images/bulk-delete`, {
+    method: 'POST',
+    body: { imageIds: selectedImages.value }
+  })
+  images.value = images.value.filter((img: any) => !selectedImages.value.includes(img.id))
+  selectedImages.value = []
+  await refresh()
 }
 
 const handleImagesUploaded = async () => {
