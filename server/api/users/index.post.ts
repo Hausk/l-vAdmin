@@ -3,6 +3,13 @@ import { users } from '~~/server/database/schema'
 import { db } from '~~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
+  const { user } = await requireUserSession(event)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'Non autorisé'
+    })
+  }
   const { email, name } = await useValidatedBody(event, {
     email: z.string().min(5).toLowerCase(),
     name: z.string().toLowerCase()

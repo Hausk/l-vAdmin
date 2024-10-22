@@ -4,6 +4,13 @@ import { db } from '~~/server/utils/db'
 import { images } from '~~/server/database/schema'
 
 export default defineEventHandler(async (event) => {
+  const { user } = await requireUserSession(event)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'Non autorisé'
+    })
+  }
   const { imageIds } = await readBody(event)
 
   if (!imageIds || !Array.isArray(imageIds)) {

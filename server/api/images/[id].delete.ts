@@ -4,6 +4,14 @@ import { db } from '~~/server/utils/db'
 import { images } from '~~/server/database/schema'
 
 export default defineEventHandler(async (event) => {
+  const { user } = await requireUserSession(event)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'Non autorisé'
+    })
+  }
+
   const id = event.context.params?.id
 
   if (!id) {
@@ -31,10 +39,10 @@ export default defineEventHandler(async (event) => {
 
     return { success: true }
   } catch (error) {
-    console.error('Error deleting image:', error)
+    console.error('Erreur lors de la suppression:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Error deleting image'
+      statusMessage: 'Erreur lors de la suppression'
     })
   }
 })

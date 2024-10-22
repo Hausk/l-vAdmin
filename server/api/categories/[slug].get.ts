@@ -3,6 +3,13 @@ import { db } from '~~/server/utils/db'
 import { categories } from '~~/server/database/schema'
 
 export default eventHandler(async (event: any) => {
+  const { user } = await requireUserSession(event)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'Non autorisé'
+    })
+  }
   const slug: string = event.context.params?.id
 
   if (!slug) {

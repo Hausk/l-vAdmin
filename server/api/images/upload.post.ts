@@ -10,6 +10,13 @@ cloudinary.config({
 })
 
 export default defineEventHandler(async (event) => {
+  const { user } = await requireUserSession(event)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'Non autorisé'
+    })
+  }
   const body = await readMultipartFormData(event)
 
   if (!body) {
