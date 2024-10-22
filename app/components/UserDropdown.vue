@@ -13,10 +13,6 @@ const items = computed(() => [
     label: '',
     disabled: true
   }], [{
-    label: 'Paramètres',
-    icon: 'i-heroicons-cog-8-tooth',
-    to: '/settings'
-  }, {
     label: 'Mode Nuit',
     icon: 'i-heroicons-command-line',
     click: toggleColorMode,
